@@ -3,6 +3,8 @@
 **MSH2RAD_Turbo.gh**
 
 Accelerate your RAD file generation with a parallel MSH2RAD run. We've experienced 4-10X speedup compared to the standard MSH2RAD component.
+![image](https://user-images.githubusercontent.com/19936679/134295654-bb8262a2-e88a-4019-98ae-bd0c8174a2dc.png)
+
 
 
 ## LICENSE
