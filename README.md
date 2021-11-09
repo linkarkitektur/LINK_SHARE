@@ -11,6 +11,12 @@ Remote controls a datadam. Usefull for simulations etc.
 ![image](https://user-images.githubusercontent.com/19936679/134341670-e0563ff7-eb19-4010-9978-e50347ea8a17.png)
 
 
+**EN17037 Schedule for Ladybug Tools 1.3.0**
+Use me to find the brightest half of the hours annually
+![image](https://user-images.githubusercontent.com/19936679/140932883-d77160cf-7dbc-401a-8ea7-2fb333e4ccdb.png)
+
+
+
 
 ## LICENSE
 linkarkitektur/LINK_SHARE is licensed under the GNU General Public License v3.0
