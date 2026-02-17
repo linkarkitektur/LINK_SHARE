@@ -696,3 +696,75 @@ The transferable architecture in LINK_EP is:
 - **Separated CI workflows** for PR quality gates, prereleases, stable releases, changelog automation, and maintenance automation.
 
 That pattern scales well for teams building multi-plugin .NET products with real release pressure.
+
+## 18. Release-Day Checklist (Practical Runbook)
+
+Use this when preparing either a prerelease or a stable release.
+
+### 18.1 Pre-flight checks
+
+1. Confirm all intended changes are merged to `main`.
+2. Confirm no red CI on latest `main` commit.
+3. Confirm `Directory.Build.props` has the intended `VersionPrefix`.
+4. Confirm you are on Windows for local build/package verification.
+
+### 18.2 Update human-readable changelog (`CHANGELOG.md`)
+
+1. On `main`, ask Claude: `Update the changelog`.
+2. Review generated `CHANGELOG.md` text for clarity and scope.
+3. Manually edit wording if needed.
+4. Commit and push `CHANGELOG.md`.
+
+### 18.3 Ensure XML changelogs are updated
+
+Option A (recommended): let CI do it
+1. Push to `main`.
+2. Wait for `.github/workflows/generate-changelogsXML.yml`.
+3. Confirm it committed updates (if any) to:
+   - `LINK_EP.Core/Resources/Changelog.xml`
+   - `LINK_EP.CorePublic/Resources/Changelog_Dashboards.xml`
+
+Option B (manual, if needed)
+1. Run:
+```powershell
+powershell -ExecutionPolicy Bypass -File "generate_changelog.ps1" -OutputPath "LINK_EP.Core/Resources/Changelog.xml" -FilterPaths ""
+powershell -ExecutionPolicy Bypass -File "generate_changelog.ps1" -OutputPath "LINK_EP.CorePublic/Resources/Changelog_Dashboards.xml" -FilterPaths "LINK_EP.Dashboards,LINK_EP.CorePublic"
+```
+2. Commit and push updated XML files.
+
+### 18.4 Build and test gate
+
+1. Validate tests locally (Windows):
+```powershell
+dotnet restore LINK_EP.sln /p:Configuration=Debug /p:Platform=x64
+dotnet build LINK_EP.sln --configuration Debug /p:Platform=x64
+dotnet test LINK_EP.Tests/LINK_EP.Tests.csproj --configuration Debug --framework net8.0-windows /p:Platform=x64
+```
+2. Confirm PR/test workflows are green on GitHub.
+
+### 18.5 Prerelease flow
+
+1. Push to `main` (or run workflow manually).
+2. Wait for `.github/workflows/test-and-yak-prerelease.yml`.
+3. Verify artifacts exist:
+   - `bin/Yak Build/*.yak`, `bin/Yak Build/*.zip`
+   - `bin/Yak Dashboards/*.yak`, `bin/Yak Dashboards/*.zip`
+4. Verify prerelease naming includes prerelease marker.
+5. Validate install in Rhino/Grasshopper test environment.
+
+### 18.6 Stable release flow
+
+1. Trigger `.github/workflows/yak-release.yml` via `workflow_dispatch`.
+2. (Optional) Run once with `dry_run=true`.
+3. Run without dry-run for final release.
+4. Verify:
+   - no prerelease artifact names,
+   - GitHub Release created,
+   - expected `.yak`/`.zip` files attached.
+
+### 18.7 Post-release verification
+
+1. Install released packages in a clean environment.
+2. Smoke-test key commands/components in both main and dashboards packages.
+3. Confirm changelog display inside product (XML-driven views).
+4. Announce release with link to GitHub Release and key highlights.
